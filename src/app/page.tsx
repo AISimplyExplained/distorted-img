@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect, useRef } from "react";
 import {
   Card,
   CardHeader,
@@ -12,13 +12,31 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import cv from "opencv-ts";
 
 export default function Component(): JSX.Element {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl]= useState<string | null>(null);
   const [refractImg, setRefractImg] = useState<string | null>(null);
   const [refractionCount, setRefractionCount] = useState<number>(3);
   const [refractionFocus, setRefractionFocus] = useState<number>(0.5);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = '/opencv.js'; // Make sure to place opencv.js in your public folder
+    script.async = true;
+    script.onload = () => {
+      cv.onRuntimeInitialized = () => {
+        console.log('OpenCV.js is ready');
+      };
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -37,6 +55,56 @@ export default function Component(): JSX.Element {
     setRefractionFocus(value[0]);
   };
 
+  //@ts-ignore
+  const createDistortionMap = (image) => {
+    const rows = image.rows;
+    const cols = image.cols;
+    const mapX = new cv.Mat(rows, cols, cv.CV_32FC1);
+    const mapY = new cv.Mat(rows, cols, cv.CV_32FC1);
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const offsetX = 10 * Math.sin((2 * Math.PI * i) / 150);
+        const offsetY = 10 * Math.cos((2 * Math.PI * j) / 150);
+        mapX.floatPtr(i, j)[0] = j + offsetX;
+        mapY.floatPtr(i, j)[0] = i + offsetY;
+      }
+    }
+
+    return [mapX, mapY];
+  };
+
+  const applyDistortion = async () => {
+    if (!image || !canvasRef.current) return;
+
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    img.onload = () => {
+      canvasRef.current!.width = img.width;
+      canvasRef.current!.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const src = cv.imread(canvasRef.current!);
+      const dst = new cv.Mat();
+
+      const [mapX, mapY] = createDistortionMap(src);
+
+      cv.remap(src, dst, mapX, mapY, cv.INTER_LINEAR, cv.BORDER_REFLECT);
+
+      cv.imshow(canvasRef.current!, dst);
+      const distortedImageDataUrl = canvasRef.current!.toDataURL();
+
+      setRefractImg(distortedImageDataUrl);
+
+      src.delete();
+      dst.delete();
+      mapX.delete();
+      mapY.delete();
+    };
+    img.src = URL.createObjectURL(image);
+  };
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
       <div className="max-w-4xl w-full px-4 md:px-6">
@@ -81,7 +149,7 @@ export default function Component(): JSX.Element {
                   />
                 </div>
               </div>
-              <Button>Click</Button>
+              <Button onClick={applyDistortion}>Click</Button>
           </CardContent>
         </Card>
         <div className="flex justify-center items-center gap-4 mt-4 relative">
@@ -101,9 +169,9 @@ export default function Component(): JSX.Element {
             </div>
           )}
           {refractImg ? (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full mb-8">
               <img
-                src={"/next.svg"}
+                src={refractImg}
                 alt="Uploaded Image"
                 width={500}
                 height={500}
@@ -119,6 +187,7 @@ export default function Component(): JSX.Element {
           )}
         </div>
       </div>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
 }
