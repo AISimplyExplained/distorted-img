@@ -1,14 +1,13 @@
-
+// app/page.tsx
 'use client';
 
 import { useState, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setSelectedFile(event.target.files[0]);
@@ -18,18 +17,25 @@ const Home = () => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedFile) return;
-
+    
     const formData = new FormData();
     formData.append('image', selectedFile);
-    formData.append('diamond_size', '0.5'); // You can adjust these values or add inputs to change them
+    formData.append('diamond_size', '0.5'); // Adjust these values or add inputs to change them
     formData.append('edge_softness', '20');
 
     try {
       setLoading(true);
-      const response = await axios.post('https://python-api-9iam.onrender.com/diamond_reflection_effect', formData, {
-        responseType: 'blob',
+      
+      const response = await fetch('https://python-api-9iam.onrender.com/diamond_reflection_effect', {
+        method: 'POST',
+        body: formData,
       });
-      const imageBlob = response.data;
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const imageBlob = await response.blob();
       const imageUrl = URL.createObjectURL(imageBlob);
       setResultImage(imageUrl);
     } catch (error) {
