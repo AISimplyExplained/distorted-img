@@ -56,13 +56,14 @@ export default function Component(): JSX.Element {
     const cols = src.cols;
     const center = new cv.Point(Math.floor(cols / 2), Math.floor(rows / 2));
 // Create a mask for one segment
+  // @ts-ignore
     const mask = new cv.Mat(rows, cols, cv.CV_8UC1, new cv.Scalar(0));
     const trianglePoints = [
       center,
       new cv.Point(cols, 0),
       new cv.Point(cols, rows),
     ];
-//@ts-ignore
+  // @ts-ignore
     const triangle = cv.matFromArray(trianglePoints.length, 1, cv.CV_32SC2, trianglePoints);
     cv.fillConvexPoly(mask, triangle, new cv.Scalar(255));
 
