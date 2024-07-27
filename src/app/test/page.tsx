@@ -3,6 +3,7 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import imageCompression from 'browser-image-compression'; // Import the library
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -10,11 +11,25 @@ const Home = () => {
   const [edgeSoftness, setEdgeSoftness] = useState<number>(20); // Default value in range 0 to 100
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Added error state
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setSelectedFile(event.target.files[0]);
+      const file = event.target.files[0];
+      try {
+        // Compress the selected image file
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        };
+
+        const compressedFile = await imageCompression(file, options);
+        setSelectedFile(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        setError('Failed to compress the image. Please try again.');
+      }
     }
   };
 
@@ -32,12 +47,12 @@ const Home = () => {
 
     const formData = new FormData();
     formData.append('image', selectedFile);
-    formData.append('diamond_size', diamondSize.toString()); // Convert to string for form data
-    formData.append('edge_softness', edgeSoftness.toString()); // Convert to string for form data
+    formData.append('diamond_size', diamondSize.toString());
+    formData.append('edge_softness', edgeSoftness.toString());
 
     try {
       setLoading(true);
-      setError(null); // Reset error state
+      setError(null);
 
       const response = await fetch('https://python-api-9iam.onrender.com/diamond_reflection_effect', {
         method: 'POST',
@@ -53,15 +68,26 @@ const Home = () => {
       setResultImage(imageUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
-      setError('Failed to process the image. Please try again.'); // Set error message
+      setError('Failed to process the image. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDownload = () => {
+    if (resultImage) {
+      const link = document.createElement('a');
+      link.href = resultImage;
+      link.download = 'processed_image.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
-      <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
+      <div className="max-w-2xl w-full p-6 bg-card rounded-lg ">
         <h1 className="text-2xl font-bold mb-4 text-card-foreground">Diamond Reflection Effect</h1>
 
         <form onSubmit={handleSubmit}>
@@ -89,6 +115,12 @@ const Home = () => {
                     className="w-full h-full object-contain"
                   />
                 </div>
+                <button
+                  onClick={handleDownload}
+                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Download Image
+                </button>
               </div>
             )}
           </div>
@@ -104,9 +136,9 @@ const Home = () => {
             <Label htmlFor="diamond_size">Diamond Size</Label>
             <Slider
               id="diamond_size"
-              min={0} // Updated minimum value
-              max={1} // Updated maximum value
-              step={0.1} // Adjusted step
+              min={0}
+              max={1}
+              step={0.1}
               value={[diamondSize]}
               onValueChange={handleDiamondSizeChange}
               className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
@@ -117,9 +149,9 @@ const Home = () => {
             <Label htmlFor="edge_softness">Edge Softness</Label>
             <Slider
               id="edge_softness"
-              min={0} // Minimum value
-              max={100} // Maximum value
-              step={5} // Step value
+              min={0}
+              max={100}
+              step={5}
               value={[edgeSoftness]}
               onValueChange={handleEdgeSoftnessChange}
               className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
@@ -129,9 +161,8 @@ const Home = () => {
           <div className="mt-6 flex justify-center">
             <label
               htmlFor="image-upload"
-              className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
             >
-              <div className="w-5 h-5 mr-2" />
               Upload Image
             </label>
             <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
