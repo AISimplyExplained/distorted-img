@@ -1,193 +1,49 @@
-"use client";
+'use client';
 
-import { useState, ChangeEvent, useEffect, useRef } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-import cv from "opencv-ts";
+import { useState } from 'react';
+import { processImage } from './actions/processImage';
 
-export default function Component(): JSX.Element {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [image, setImage] = useState<File | null>(null);
-  const [imageUrl, setImageUrl]= useState<string | null>(null);
-  const [refractImg, setRefractImg] = useState<string | null>(null);
-  const [refractionCount, setRefractionCount] = useState<number>(3);
-  const [refractionFocus, setRefractionFocus] = useState<number>(0.5);
+const Home = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = '/opencv.js'; // Make sure to place opencv.js in your public folder
-    script.async = true;
-    script.onload = () => {
-      cv.onRuntimeInitialized = () => {
-        console.log('OpenCV.js is ready');
-      };
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const blobUrl = URL.createObjectURL(file);
-      setImage(file);
-      setImageUrl(blobUrl);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
-  const handleRefractionCountChange = (value: number[]) => {
-    setRefractionCount(value[0]);
-  };
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
 
-  const handleRefractionFocusChange = (value: number[]) => {
-    setRefractionFocus(value[0]);
-  };
-
-  //@ts-ignore
-  const createDistortionMap = (image) => {
-    const rows = image.rows;
-    const cols = image.cols;
-    const mapX = new cv.Mat(rows, cols, cv.CV_32FC1);
-    const mapY = new cv.Mat(rows, cols, cv.CV_32FC1);
-
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        const offsetX = 10 * Math.sin((2 * Math.PI * i) / 150);
-        const offsetY = 10 * Math.cos((2 * Math.PI * j) / 150);
-        mapX.floatPtr(i, j)[0] = j + offsetX;
-        mapY.floatPtr(i, j)[0] = i + offsetY;
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+    reader.onloadend = async () => {
+      'use server'
+      const base64Image = reader.result?.toString().split(',')[1];
+      if (base64Image) {
+        try {
+          const result = await useServerAction(processImage, {
+            image: base64Image,
+            diamondSize: 0.5,
+            edgeSoftness: 20,
+          });
+          setProcessedImage(`data:image/png;base64,${result}`);
+        } catch (error) {
+          console.error('Image processing failed', error);
+        }
       }
-    }
-
-    return [mapX, mapY];
-  };
-
-  const applyDistortion = async () => {
-    if (!image || !canvasRef.current) return;
-
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
-
-    const img = new Image();
-    img.onload = () => {
-      canvasRef.current!.width = img.width;
-      canvasRef.current!.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      const src = cv.imread(canvasRef.current!);
-      const dst = new cv.Mat();
-
-      const [mapX, mapY] = createDistortionMap(src);
-
-      cv.remap(src, dst, mapX, mapY, cv.INTER_LINEAR, cv.BORDER_REFLECT);
-
-      cv.imshow(canvasRef.current!, dst);
-      const distortedImageDataUrl = canvasRef.current!.toDataURL();
-
-      setRefractImg(distortedImageDataUrl);
-
-      src.delete();
-      dst.delete();
-      mapX.delete();
-      mapY.delete();
     };
-    img.src = URL.createObjectURL(image);
   };
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-background">
-      <div className="max-w-4xl w-full px-4 md:px-6">
-        <Card className="overflow-hidden">
-          <CardHeader>
-            <CardTitle>Image Effects</CardTitle>
-            <CardDescription>
-              Upload an image and apply various effects
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="max-w-xl">
-              <div className="grid gap-4 mb-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="image">Image</Label>
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="refraction-count">Refraction Count</Label>
-                  <Slider
-                    id="refraction-count"
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={[refractionCount]}
-                    onValueChange={handleRefractionCountChange}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="refraction-focus">Refraction Focus</Label>
-                  <Slider
-                    id="refraction-focus"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={[refractionFocus]}
-                    onValueChange={handleRefractionFocusChange}
-                  />
-                </div>
-              </div>
-              <Button onClick={applyDistortion}>Click</Button>
-          </CardContent>
-        </Card>
-        <div className="flex justify-center items-center gap-4 mt-4 relative">
-          {imageUrl && (
-            <div className="relative w-full h-full mb-8">
-              <img
-                src={imageUrl}
-                alt="Uploaded Image"
-                width={500}
-                height={500}
-                className="w-full h-full object-contain"
-                style={{
-                  filter: `refract(${refractionCount}, ${refractionFocus})`,
-                }}
-              />
-              <h2 className="text-center mt-4">Original Image</h2>
-            </div>
-          )}
-          {refractImg ? (
-            <div className="relative w-full h-full mb-8">
-              <img
-                src={refractImg}
-                alt="Uploaded Image"
-                width={500}
-                height={500}
-                className="w-full h-full object-contain"
-                style={{
-                  filter: `refract(${refractionCount}, ${refractionFocus})`,
-                }}
-              />
-              <h2 className="text-center mt-4">Distorted Image</h2>
-            </div>
-          ) : (
-            <div className="relative w-full h-full"> </div>
-          )}
-        </div>
-      </div>
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    <div>
+      <h1>Diamond Reflection Effect</h1>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <button onClick={handleSubmit}>Process Image</button>
+      {processedImage && <img src={processedImage} alt="Processed" />}
     </div>
   );
-}
+};
+
+export default Home;
