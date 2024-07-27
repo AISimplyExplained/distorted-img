@@ -62,6 +62,7 @@ export default function Component(): JSX.Element {
       new cv.Point(cols, 0),
       new cv.Point(cols, rows),
     ];
+//@ts-ignore
     const triangle = cv.matFromArray(trianglePoints.length, 1, cv.CV_32SC2, trianglePoints);
     cv.fillConvexPoly(mask, triangle, new cv.Scalar(255));
 
