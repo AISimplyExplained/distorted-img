@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [diamondSize, setDiamondSize] = useState<number>(1); // Updated to integer
+  const [diamondSize, setDiamondSize] = useState<number>(0.5); // Default value in range 0.1 to 0.9
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null); // Added error state
@@ -27,7 +27,7 @@ const Home = () => {
 
     const formData = new FormData();
     formData.append('image', selectedFile);
-    formData.append('diamond_size', diamondSize.toString()); // Converted to string for form data
+    formData.append('diamond_size', diamondSize.toString()); // Convert to string for form data
 
     try {
       setLoading(true);
@@ -98,9 +98,9 @@ const Home = () => {
             <Label htmlFor="diamond_size">Diamond Size</Label>
             <Slider
               id="diamond_size"
-              min={1}
-              max={10} // Adjust based on your requirements
-              step={1} // Set step to 1 for integer values
+              min={0.1} // Updated minimum value
+              max={0.9} // Updated maximum value
+              step={0.1} // Adjusted step for floating point values
               value={[diamondSize]}
               onValueChange={handleDiamondSizeChange}
               className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
