@@ -21,7 +21,8 @@ const Home = () => {
       try {
         // Compress the selected image file
         const options = {
-          maxSizeMB: 0.5,
+          maxSizeMB: 1,
+maxWidthOrHeight: 1024,
           useWebWorker: true,
         };
 
