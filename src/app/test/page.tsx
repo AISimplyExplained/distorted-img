@@ -6,7 +6,8 @@ import { Slider } from "@/components/ui/slider";
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [diamondSize, setDiamondSize] = useState<number>(0.5); // Default value in range 0.1 to 0.9
+  const [diamondSize, setDiamondSize] = useState<number>(0.5); // Default value in range 0 to 1
+  const [edgeSoftness, setEdgeSoftness] = useState<number>(20); // Default value in range 0 to 100
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null); // Added error state
@@ -21,6 +22,10 @@ const Home = () => {
     setDiamondSize(value[0]);
   };
 
+  const handleEdgeSoftnessChange = (value: number[]) => {
+    setEdgeSoftness(value[0]);
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedFile) return;
@@ -28,6 +33,7 @@ const Home = () => {
     const formData = new FormData();
     formData.append('image', selectedFile);
     formData.append('diamond_size', diamondSize.toString()); // Convert to string for form data
+    formData.append('edge_softness', edgeSoftness.toString()); // Convert to string for form data
 
     try {
       setLoading(true);
@@ -98,11 +104,24 @@ const Home = () => {
             <Label htmlFor="diamond_size">Diamond Size</Label>
             <Slider
               id="diamond_size"
-              min={0.1} // Updated minimum value
-              max={0.9} // Updated maximum value
-              step={0.1} // Adjusted step for floating point values
+              min={0} // Updated minimum value
+              max={1} // Updated maximum value
+              step={0.1} // Adjusted step
               value={[diamondSize]}
               onValueChange={handleDiamondSizeChange}
+              className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
+            />
+          </div>
+
+          <div className="mt-6">
+            <Label htmlFor="edge_softness">Edge Softness</Label>
+            <Slider
+              id="edge_softness"
+              min={0} // Minimum value
+              max={100} // Maximum value
+              step={5} // Step value
+              value={[edgeSoftness]}
+              onValueChange={handleEdgeSoftnessChange}
               className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
             />
           </div>
