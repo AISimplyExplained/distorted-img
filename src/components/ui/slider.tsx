@@ -14,7 +14,7 @@ const generateTicks = (min: number, max: number, step: number) => {
                 className="absolute top-1/2 h-2 w-2 rounded-full -translate-x-1/2 -translate-y-1/2 bg-gray-300"
                 style={{ left: `${((i - min) / (max - min)) * 100}%` }}
             >
-                <span className="absolute top-3 left-1/2 -translate-x-1/2">{i}</span>
+              
             </div>
         )
     }
