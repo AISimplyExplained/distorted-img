@@ -146,9 +146,8 @@ const Home = () => {
           <div className="mt-6 flex justify-center">
             <label
               htmlFor="image-upload"
-              className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
             >
-              <div className="w-5 h-5 mr-2 text-center" />
               Upload Image
             </label>
             <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
