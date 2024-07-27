@@ -1,11 +1,9 @@
-
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import imageCompression from 'browser-image-compression'; // Import the library
-
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -22,12 +20,13 @@ const Home = () => {
         // Compress the selected image file
         const options = {
           maxSizeMB: 1,
-maxWidthOrHeight: 1024,
+          maxWidthOrHeight: 1024,
           useWebWorker: true,
         };
 
         const compressedFile = await imageCompression(file, options);
         setSelectedFile(compressedFile);
+        setResultImage(null)
       } catch (error) {
         console.error('Error compressing image:', error);
         setError('Failed to compress the image. Please try again.');
@@ -76,6 +75,17 @@ maxWidthOrHeight: 1024,
     }
   };
 
+  const handleDownload = () => {
+    if (resultImage) {
+      const link = document.createElement('a');
+      link.href = resultImage;
+      link.download = 'processed_image.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
       <div className="max-w-2xl w-full p-6 bg-card rounded-lg ">
@@ -106,6 +116,12 @@ maxWidthOrHeight: 1024,
                     className="w-full h-full object-contain"
                   />
                 </div>
+                <button
+                  onClick={handleDownload}
+                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Download Image
+                </button>
               </div>
             )}
           </div>
