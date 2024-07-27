@@ -1,7 +1,6 @@
-'use client';
-
-import { useState } from 'react';
-import { processImage } from './actions/processImage';
+"use client"
+import React, { useState } from 'react';
+import {processImageFn} from "@/lib/processImage"
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -19,15 +18,10 @@ const Home = () => {
     const reader = new FileReader();
     reader.readAsDataURL(selectedFile);
     reader.onloadend = async () => {
-      'use server'
       const base64Image = reader.result?.toString().split(',')[1];
       if (base64Image) {
         try {
-          const result = await useServerAction(processImage, {
-            image: base64Image,
-            diamondSize: 0.5,
-            edgeSoftness: 20,
-          });
+          const result = await processImageFn(base64Image, 0.5, 20);
           setProcessedImage(`data:image/png;base64,${result}`);
         } catch (error) {
           console.error('Image processing failed', error);
