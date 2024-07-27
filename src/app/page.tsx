@@ -92,10 +92,8 @@ const Home = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-      <div className="max-w-2xl w-full p-6 bg-card rounded-lg">
-        <h1 className="text-2xl font-bold mb-4 text-card-foreground">
-DDD Refraction Tool
-</h1>
+      <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold mb-4 text-card-foreground">Diamond Reflection Effect</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row">
@@ -140,7 +138,10 @@ DDD Refraction Tool
           )}
 
           <div>
-            <Label htmlFor="diamond_size">Diamond Size</Label>
+            <Label htmlFor="diamond_size" className="flex justify-between">
+              Diamond Size
+              <span className="text-sm text-muted-foreground">{diamondSize.toFixed(1)}</span>
+            </Label>
             <Slider
               id="diamond_size"
               min={0}
@@ -153,7 +154,10 @@ DDD Refraction Tool
           </div>
 
           <div>
-            <Label htmlFor="edge_softness">Edge Softness</Label>
+            <Label htmlFor="edge_softness" className="flex justify-between">
+              Edge Softness
+              <span className="text-sm text-muted-foreground">{edgeSoftness}</span>
+            </Label>
             <Slider
               id="edge_softness"
               min={0}
@@ -166,7 +170,10 @@ DDD Refraction Tool
           </div>
 
           <div>
-            <Label htmlFor="rotation">Rotation (degrees)</Label>
+            <Label htmlFor="rotation" className="flex justify-between">
+              Rotation (degrees)
+              <span className="text-sm text-muted-foreground">{rotation}°</span>
+            </Label>
             <Slider
               id="rotation"
               min={0}
