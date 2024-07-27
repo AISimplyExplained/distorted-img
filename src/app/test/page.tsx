@@ -30,8 +30,8 @@ export default function Component() {
 
     const formData = new FormData();
     formData.append('image', image);
-    formData.append('diamond_size', refraction.toString()); // Assuming diamond_size maps to refraction
-    formData.append('edge_softness', refractionFocus.toString()); // Assuming edge_softness maps to refractionFocus
+    formData.append('diamond_size', refraction.toString());
+    formData.append('edge_softness', refractionFocus.toString());
 
     try {
       setLoading(true);
@@ -59,33 +59,41 @@ export default function Component() {
     <div className="flex flex-col items-center justify-center h-screen bg-background">
       <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4 text-card-foreground">Image Effects</h1>
-        
-        {resultImage ? (
-          <div className="relative w-full aspect-square overflow-hidden rounded-lg">
-            <img
-              src={resultImage}
-              alt="Processed Image"
-              width={600}
-              height={600}
-              className="w-full h-full object-contain"
-            />
-          </div>
-        ) : image ? (
-          <div className="relative w-full aspect-square overflow-hidden rounded-lg">
-            <img
-              src={URL.createObjectURL(image)}
-              alt="Uploaded Image"
-              width={600}
-              height={600}
-              className="w-full h-full object-contain"
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-64 bg-muted rounded-lg">
-            <div className="w-12 h-12 text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">Drag and drop an image or click to upload</p>
-          </div>
-        )}
+
+        <div className="flex flex-col gap-4 mt-6 md:flex-row">
+          {image && !resultImage && (
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold mb-2">Original Image</h2>
+              <div className="relative w-full aspect-square overflow-hidden rounded-lg">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt="Uploaded Image"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          {resultImage && (
+            <div className="flex-1 mt-4 md:mt-0">
+              <h2 className="text-lg font-semibold mb-2">Result Image</h2>
+              <div className="relative w-full aspect-square overflow-hidden rounded-lg">
+                <img
+                  src={resultImage}
+                  alt="Processed Image"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          {!image && !resultImage && (
+            <div className="flex flex-col items-center justify-center w-full aspect-square bg-muted rounded-lg">
+              <div className="w-12 h-12 text-muted-foreground" />
+              <p className="mt-4 text-muted-foreground">Drag and drop an image or click to upload</p>
+            </div>
+          )}
+        </div>
 
         <div className="mt-6 grid grid-cols-2 gap-4">
           <div>
