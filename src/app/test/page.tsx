@@ -1,14 +1,14 @@
-"use client";
-
-import { useState, ChangeEvent, FormEvent } from 'react';
+"use client"
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import imageCompression from 'browser-image-compression'; // Import the library
+import imageCompression from 'browser-image-compression';
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [diamondSize, setDiamondSize] = useState<number>(0.5); // Default value in range 0 to 1
-  const [edgeSoftness, setEdgeSoftness] = useState<number>(20); // Default value in range 0 to 100
+  const [diamondSize, setDiamondSize] = useState<number>(0.5);
+  const [edgeSoftness, setEdgeSoftness] = useState<number>(20);
+  const [rotation, setRotation] = useState<number>(0);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,6 @@ const Home = () => {
     if (event.target.files) {
       const file = event.target.files[0];
       try {
-        // Compress the selected image file
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 1024,
@@ -26,6 +25,7 @@ const Home = () => {
 
         const compressedFile = await imageCompression(file, options);
         setSelectedFile(compressedFile);
+        setResultImage(null);
       } catch (error) {
         console.error('Error compressing image:', error);
         setError('Failed to compress the image. Please try again.');
@@ -41,6 +41,10 @@ const Home = () => {
     setEdgeSoftness(value[0]);
   };
 
+  const handleRotationChange = (value: number[]) => {
+    setRotation(value[0]);
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedFile) return;
@@ -49,6 +53,7 @@ const Home = () => {
     formData.append('image', selectedFile);
     formData.append('diamond_size', diamondSize.toString());
     formData.append('edge_softness', edgeSoftness.toString());
+    formData.append('rotation', rotation.toString());
 
     try {
       setLoading(true);
@@ -86,11 +91,11 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-background">
-      <div className="max-w-2xl w-full p-6 bg-card rounded-lg ">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
+      <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4 text-card-foreground">Diamond Reflection Effect</h1>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row">
             {selectedFile && !resultImage && (
               <div className="flex-1">
@@ -132,8 +137,11 @@ const Home = () => {
             </div>
           )}
 
-          <div className="mt-6">
-            <Label htmlFor="diamond_size">Diamond Size</Label>
+          <div>
+            <Label htmlFor="diamond_size" className="flex justify-between">
+              Diamond Size
+              <span className="text-sm text-muted-foreground">{diamondSize.toFixed(1)}</span>
+            </Label>
             <Slider
               id="diamond_size"
               min={0}
@@ -145,8 +153,11 @@ const Home = () => {
             />
           </div>
 
-          <div className="mt-6">
-            <Label htmlFor="edge_softness">Edge Softness</Label>
+          <div>
+            <Label htmlFor="edge_softness" className="flex justify-between">
+              Edge Softness
+              <span className="text-sm text-muted-foreground">{edgeSoftness}</span>
+            </Label>
             <Slider
               id="edge_softness"
               min={0}
@@ -158,7 +169,23 @@ const Home = () => {
             />
           </div>
 
-          <div className="mt-6 flex justify-center">
+          <div>
+            <Label htmlFor="rotation" className="flex justify-between">
+              Rotation (degrees)
+              <span className="text-sm text-muted-foreground">{rotation}°</span>
+            </Label>
+            <Slider
+              id="rotation"
+              min={0}
+              max={360}
+              step={15}
+              value={[rotation]}
+              onValueChange={handleRotationChange}
+              className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
+            />
+          </div>
+
+          <div className="flex justify-center">
             <label
               htmlFor="image-upload"
               className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
@@ -169,7 +196,7 @@ const Home = () => {
           </div>
 
           {selectedFile && (
-            <div className="mt-6 flex justify-center">
+            <div className="flex justify-center">
               <button
                 type="submit"
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
