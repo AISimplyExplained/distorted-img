@@ -26,7 +26,7 @@ const Home = () => {
           useWebWorker: true,
         };
 
-        const compressedFile = await imageCompression(file, options);
+        const compressedFile = await imageCompression(file);
         setSelectedFile(compressedFile);
       } catch (error) {
         console.error('Error compressing image:', error);
