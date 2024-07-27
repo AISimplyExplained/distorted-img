@@ -22,12 +22,12 @@ export default function Component(): JSX.Element {
   const [segmentCount, setSegmentCount] = useState<number>(6);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = '/opencv.js'; // Make sure to place opencv.js in your public folder
+    const script = document.createElement("script");
+    script.src = "/opencv.js"; // Make sure to place opencv.js in your public folder
     script.async = true;
     script.onload = () => {
       cv.onRuntimeInitialized = () => {
-        console.log('OpenCV.js is ready');
+        console.log("OpenCV.js is ready");
       };
     };
     document.body.appendChild(script);
@@ -55,37 +55,34 @@ export default function Component(): JSX.Element {
     const rows = src.rows;
     const cols = src.cols;
     const center = new cv.Point(Math.floor(cols / 2), Math.floor(rows / 2));
-
-    // Create a mask for one segment
+// Create a mask for one segment
     const mask = new cv.Mat(rows, cols, cv.CV_8UC1, new cv.Scalar(0));
-    cv.ellipse(
-      mask,
+    const trianglePoints = [
       center,
-      new cv.Size(cols, rows),
-      0,
-      0,
-      360 / segments,
-      new cv.Scalar(255),
-      -1
-    );
+      new cv.Point(cols, 0),
+      new cv.Point(cols, rows),
+    ];
+    const triangle = cv.matFromArray(trianglePoints.length, 1, cv.CV_32SC2, trianglePoints);
+    cv.fillConvexPoly(mask, triangle, new cv.Scalar(255));
 
     // Create the kaleidoscope effect
     const result = new cv.Mat(rows, cols, src.type(), new cv.Scalar(0, 0, 0, 255));
     const M = new cv.Mat();
-    
-for (let i = 0; i < segments; i++) {
-    const rotated = new cv.Mat();
-    const M = cv.getRotationMatrix2D(center, i * (360 / segments), 1.0);
-    cv.warpAffine(src, rotated, M, new cv.Size(cols, rows));
-    
-    const segmentResult = new cv.Mat();
-    cv.bitwise_and(rotated, rotated, segmentResult, mask);
-    cv.bitwise_or(result, segmentResult, result);
-    
-    rotated.delete();
-    segmentResult.delete();
-    M.delete();
-  }
+    const stepAngle = 360 / segments;
+
+    for (let i = 0; i < segments; i++) {
+      const rotated = new cv.Mat();
+      const M = cv.getRotationMatrix2D(center, i * stepAngle, 1.0);
+      cv.warpAffine(src, rotated, M, new cv.Size(cols, rows));
+
+      const segmentResult = new cv.Mat();
+      cv.bitwise_and(rotated, rotated, segmentResult, mask);
+      cv.add(result, segmentResult, result);
+
+      rotated.delete();
+      segmentResult.delete();
+      M.delete();
+    }
 
     mask.delete();
     M.delete();
@@ -96,7 +93,7 @@ for (let i = 0; i < segments; i++) {
   const applyKaleidoscope = async () => {
     if (!image || !canvasRef.current) return;
 
-    const ctx = canvasRef.current.getContext('2d');
+    const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
     const img = new Image();
@@ -118,8 +115,7 @@ for (let i = 0; i < segments; i++) {
     };
     img.src = URL.createObjectURL(image);
   };
-
-  return (
+return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
       <div className="max-w-4xl w-full px-4 md:px-6">
         <Card className="overflow-hidden">
@@ -130,29 +126,29 @@ for (let i = 0; i < segments; i++) {
             </CardDescription>
           </CardHeader>
           <CardContent className="max-w-xl">
-              <div className="grid gap-4 mb-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="image">Image</Label>
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="segment-count">Segment Count</Label>
-                  <Slider
-                    id="segment-count"
-                    min={2}
-                    max={12}
-                    step={1}
-                    value={[segmentCount]}
-                    onValueChange={handleSegmentCountChange}
-                  />
-                </div>
+            <div className="grid gap-4 mb-4">
+              <div className="grid gap-2">
+                <Label htmlFor="image">Image</Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
               </div>
-              <Button onClick={applyKaleidoscope}>Apply Kaleidoscope</Button>
+              <div className="grid gap-2">
+                <Label htmlFor="segment-count">Segment Count</Label>
+                <Slider
+                  id="segment-count"
+                  min={2}
+                  max={12}
+                  step={1}
+                  value={[segmentCount]}
+                  onValueChange={handleSegmentCountChange}
+                />
+              </div>
+            </div>
+            <Button onClick={applyKaleidoscope}>Apply Kaleidoscope</Button>
           </CardContent>
         </Card>
         <div className="flex justify-center items-center gap-4 mt-4 relative">
@@ -168,7 +164,7 @@ for (let i = 0; i < segments; i++) {
               <h2 className="text-center mt-4">Original Image</h2>
             </div>
           )}
-          {kaleidoscopeImg ? (
+{kaleidoscopeImg ? (
             <div className="relative w-full h-full mb-8">
               <img
                 src={kaleidoscopeImg}
@@ -184,7 +180,7 @@ for (let i = 0; i < segments; i++) {
           )}
         </div>
       </div>
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
 }
