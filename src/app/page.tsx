@@ -21,12 +21,10 @@ const Home = () => {
       try {
         // Compress the selected image file
         const options = {
-          maxSizeMB: 1, // Maximum size in MB
-          maxWidthOrHeight: 1024, // Maximum width or height
           useWebWorker: true,
         };
 
-        const compressedFile = await imageCompression(file);
+        const compressedFile = await imageCompression(file, options);
         setSelectedFile(compressedFile);
       } catch (error) {
         console.error('Error compressing image:', error);
