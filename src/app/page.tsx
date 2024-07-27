@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
