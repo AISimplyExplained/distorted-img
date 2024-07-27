@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import imageCompression from 'browser-image-compression'; // Import the library
 
+
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [diamondSize, setDiamondSize] = useState<number>(0.5); // Default value in range 0 to 1
