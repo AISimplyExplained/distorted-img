@@ -78,7 +78,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
-      <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
+      <div className="max-w-2xl w-full p-6 bg-card rounded-lg ">
         <h1 className="text-2xl font-bold mb-4 text-card-foreground">Diamond Reflection Effect</h1>
 
         <form onSubmit={handleSubmit}>
