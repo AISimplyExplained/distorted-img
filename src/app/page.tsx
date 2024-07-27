@@ -93,7 +93,9 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <div className="max-w-2xl w-full p-6 bg-card rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-4 text-card-foreground">Diamond Reflection Effect</h1>
+        <h1 className="text-2xl font-bold mb-4 text-card-foreground">
+DDD Refraction Tool
+</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row">
