@@ -95,7 +95,7 @@ const Home = () => {
       <div className="max-w-4xl w-full p-8 bg-card rounded-lg">
         <div className="flex items-center mb-6">
           <img src="/dlogo.png" alt="DDD Refraction Tool Logo" className="h-12 mr-4" />
-          <h1 className="text-3xl font-bold text-card-foreground">DDD Refraction Tool</h1>
+          <h1 className="text-3xl font-bold text-card-foreground">Refraction Tool</h1>
         </div>
 
         <p className="text-lg mb-6 text-card-foreground">
@@ -107,7 +107,7 @@ const Home = () => {
             <div className="flex-1">
               <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
               {!selectedFile && !resultImage && (
-                <div className="flex flex-col items-center justify-center w-full aspect-square bg-muted rounded-lg p-4 border-2 border-dashed border-muted-foreground">
+                <div className="flex flex-col items-center justify-center w-full h-48 bg-muted rounded-lg p-4 border-2 border-dashed border-muted-foreground">
                   <div className="w-12 h-12 text-muted-foreground mb-4">
                     {/* You can add an upload icon here */}
                   </div>
@@ -115,11 +115,11 @@ const Home = () => {
                 </div>
               )}
               {selectedFile && !resultImage && (
-                <div className="relative w-full aspect-square overflow-hidden rounded-lg">
+                <div className="relative w-full h-48 overflow-hidden rounded-lg">
                   <img
                     src={URL.createObjectURL(selectedFile)}
                     alt="Uploaded Image"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               )}
@@ -137,11 +137,11 @@ const Home = () => {
             {resultImage && (
               <div className="flex-1">
                 <h2 className="text-xl font-semibold mb-4">Result Image</h2>
-                <div className="relative w-full aspect-square overflow-hidden rounded-lg">
+                <div className="relative w-full h-48 overflow-hidden rounded-lg">
                   <img
                     src={resultImage}
                     alt="Processed Image"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <button
