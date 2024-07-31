@@ -91,17 +91,30 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-      <div className="max-w-2xl w-full p-6 bg-card rounded-lg ">
-        <h1 className="text-2xl font-bold mb-4 text-card-foreground">
-DDD Refraction Tool
-</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
+      <div className="max-w-4xl w-full p-8 bg-card rounded-lg">
+        <div className="flex items-center mb-6">
+          <img src="/dlogo.png" alt="DDD Refraction Tool Logo" className="h-12 mr-4" />
+          <h1 className="text-3xl font-bold text-card-foreground">DDD Refraction Tool</h1>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col gap-4 md:flex-row">
-            {selectedFile && !resultImage && (
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-2">Original Image</h2>
+        <p className="text-lg mb-6 text-card-foreground">
+          Transform your images into stunning, refracted works of art perfect for enhancing your slide decks and presentations.
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex flex-col gap-6 md:flex-row">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
+              {!selectedFile && !resultImage && (
+                <div className="flex flex-col items-center justify-center w-full aspect-square bg-muted rounded-lg p-4 border-2 border-dashed border-muted-foreground">
+                  <div className="w-12 h-12 text-muted-foreground mb-4">
+                    {/* You can add an upload icon here */}
+                  </div>
+                  <p className="text-center text-muted-foreground">Drag and drop an image or click to upload</p>
+                </div>
+              )}
+              {selectedFile && !resultImage && (
                 <div className="relative w-full aspect-square overflow-hidden rounded-lg">
                   <img
                     src={URL.createObjectURL(selectedFile)}
@@ -109,12 +122,21 @@ DDD Refraction Tool
                     className="w-full h-full object-contain"
                   />
                 </div>
+              )}
+              <div className="mt-4 flex justify-center">
+                <label
+                  htmlFor="image-upload"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
+                >
+                  Upload Image
+                </label>
+                <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </div>
-            )}
+            </div>
 
             {resultImage && (
-              <div className="flex-1 mt-4 md:mt-0">
-                <h2 className="text-lg font-semibold mb-2">Result Image</h2>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-4">Result Image</h2>
                 <div className="relative w-full aspect-square overflow-hidden rounded-lg">
                   <img
                     src={resultImage}
@@ -124,7 +146,7 @@ DDD Refraction Tool
                 </div>
                 <button
                   onClick={handleDownload}
-                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                  className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Download Image
                 </button>
@@ -132,79 +154,73 @@ DDD Refraction Tool
             )}
           </div>
 
-          {!selectedFile && !resultImage && (
-            <div className="flex flex-col items-center justify-center w-full aspect-square bg-muted rounded-lg">
-              <div className="w-12 h-12 text-muted-foreground" />
-              <p className="mt-4 text-muted-foreground">Drag and drop an image or click to upload</p>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="diamond_size" className="flex justify-between text-lg mb-2">
+                Diamond Size
+                <span className="text-sm text-muted-foreground">{diamondSize.toFixed(1)}</span>
+              </Label>
+              <Slider
+                id="diamond_size"
+                min={0.1}
+                max={1}
+                step={0.1}
+                value={[diamondSize]}
+                onValueChange={handleDiamondSizeChange}
+                className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Control the size of the diamond shapes applied to your image. Range: 0.1 (small) to 1.0 (large).
+              </p>
             </div>
-          )}
 
-          <div>
-            <Label htmlFor="diamond_size" className="flex justify-between">
-              Diamond Size
-              <span className="text-sm text-muted-foreground">{diamondSize.toFixed(1)}</span>
-            </Label>
-            <Slider
-              id="diamond_size"
-              min={0}
-              max={1}
-              step={0.1}
-              value={[diamondSize]}
-              onValueChange={handleDiamondSizeChange}
-              className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-            />
-          </div>
+            <div>
+              <Label htmlFor="edge_softness" className="flex justify-between text-lg mb-2">
+                Edge Softness
+                <span className="text-sm text-muted-foreground">{edgeSoftness}</span>
+              </Label>
+              <Slider
+                id="edge_softness"
+                min={0}
+                max={100}
+                step={5}
+                value={[edgeSoftness]}
+                onValueChange={handleEdgeSoftnessChange}
+                className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Control the transition between the refracted and non-refracted areas of the image. Range: 0 (sharp edges) to 100 (soft edges).
+              </p>
+            </div>
 
-          <div>
-            <Label htmlFor="edge_softness" className="flex justify-between">
-              Edge Softness
-              <span className="text-sm text-muted-foreground">{edgeSoftness}</span>
-            </Label>
-            <Slider
-              id="edge_softness"
-              min={0}
-              max={100}
-              step={5}
-              value={[edgeSoftness]}
-              onValueChange={handleEdgeSoftnessChange}
-              className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="rotation" className="flex justify-between">
-              Rotation (degrees)
-              <span className="text-sm text-muted-foreground">{rotation}°</span>
-            </Label>
-            <Slider
-              id="rotation"
-              min={0}
-              max={360}
-              step={15}
-              value={[rotation]}
-              onValueChange={handleRotationChange}
-              className="[&>span:first-child]:h-1 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <label
-              htmlFor="image-upload"
-              className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
-            >
-              Upload Image
-            </label>
-            <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <div>
+              <Label htmlFor="rotation" className="flex justify-between text-lg mb-2">
+                Rotation (degrees)
+                <span className="text-sm text-muted-foreground">{rotation}°</span>
+              </Label>
+              <Slider
+                id="rotation"
+                min={0}
+                max={360}
+                step={15}
+                value={[rotation]}
+                onValueChange={handleRotationChange}
+                className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Rotate the refracted pattern to suit your artistic vision. Range: 0° to 360°.
+              </p>
+            </div>
           </div>
 
           {selectedFile && (
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                className="px-8 py-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-lg font-semibold"
                 disabled={loading}
               >
-                {loading ? "Processing..." : "Submit"}
+                {loading ? "Processing..." : "Apply Refraction Effect"}
               </button>
             </div>
           )}
