@@ -95,7 +95,7 @@ const Home = () => {
       <div className="max-w-4xl w-full p-8 bg-card rounded-lg">
         <div className="flex items-center mb-6">
           <img src="/dlogo.png" alt="DDD Refraction Tool Logo" className="h-12 mr-4" />
-          <h1 className="text-3xl font-bold text-card-foreground">Refraction Tool</h1>
+          <h1 className="text-3xl font-bold text-card-foreground">Refractor Tool</h1>
         </div>
 
         <p className="text-lg mb-6 text-card-foreground">
