@@ -2,9 +2,14 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Camera, Download, Upload, X } from "lucide-react";
 import imageCompression from 'browser-image-compression';
 
-const Home = () => {
+const RefractorTool: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [diamondSize, setDiamondSize] = useState<number>(0.5);
   const [edgeSoftness, setEdgeSoftness] = useState<number>(20);
@@ -12,6 +17,8 @@ const Home = () => {
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -26,6 +33,7 @@ const Home = () => {
         const compressedFile = await imageCompression(file, options);
         setSelectedFile(compressedFile);
         setResultImage(null);
+        setPreviewImage(URL.createObjectURL(compressedFile));
       } catch (error) {
         console.error('Error compressing image:', error);
         setError('Failed to compress the image. Please try again.');
@@ -90,159 +98,198 @@ const Home = () => {
     }
   };
 
+  const removeImage = (): void => {
+    setPreviewImage(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
-      <div className="max-w-4xl w-full p-8 bg-card rounded-lg">
+    <Card className="w-full max-w-4xl mx-auto my-8">
+      <CardHeader className="pb-6">
         <div className="flex items-center space-x-4">
           <img
-              src="dlogo.png"
-              alt="Logo Creator"
-              className="w-16 h-16 object-contain"
+            src="dlogo.png"
+            alt="Logo Creator"
+            className="w-16 h-16 object-contain"
           />
-          <p className="text-2xl font-bold">
+          <CardTitle className="text-2xl font-bold">
             Refractor Tool
-          </p>
+          </CardTitle>
         </div>
-
-        <p className="text-lg mb-6 text-card-foreground">
-          Transform your images into stunning, refracted works of art perfect for enhancing your slide decks and
-          presentations.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex flex-col gap-6 md:flex-row">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
-              {!selectedFile && !resultImage && (
-                  <div
-                      className="flex flex-col items-center justify-center w-full h-48 bg-muted rounded-lg p-4 border-2 border-dashed border-muted-foreground">
-                    <div className="w-12 h-12 text-muted-foreground mb-4">
-                      {/* You can add an upload icon here */}
-                    </div>
-                    <p className="text-center text-muted-foreground">Drag and drop an image or click to upload</p>
-                  </div>
-              )}
-              {selectedFile && !resultImage && (
-                  <div className="relative w-full h-48 overflow-hidden rounded-lg">
+      </CardHeader>
+      <CardContent className="space-y-10">
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1 space-y-4">
+              <p className="text-sm">
+                Drag and drop or click to upload an image to apply the refraction effect.
+              </p>
+              <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                {previewImage ? (
+                  <div className="relative w-full h-full">
                     <img
-                        src={URL.createObjectURL(selectedFile)}
-                        alt="Uploaded Image"
-                        className="w-full h-full object-cover"
+                      src={previewImage}
+                      alt="Uploaded preview"
+                      className="w-full h-full object-cover rounded-lg"
                     />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 z-10 rounded-full bg-background border border-input h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
-              )}
-              <div className="mt-4 flex justify-center">
-                <label
-                    htmlFor="image-upload"
-                    className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors text-center"
-                >
-                  Upload Image
-                </label>
-                <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange}/>
+                ) : (
+                  <Camera className="h-16 w-16 text-gray-400" />
+                )}
               </div>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full text-sm"
+                variant="outline"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Choose Image
+              </Button>
+              <Input
+                id="image-upload"
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
-
             {resultImage && (
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold mb-4">Result Image</h2>
-                  <div className="relative w-full h-48 overflow-hidden rounded-lg">
-                    <img
-                        src={resultImage}
-                        alt="Processed Image"
-                        className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <button
-                      onClick={handleDownload}
-                      className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    Download Image
-                  </button>
+              <div className="flex-1 space-y-4">
+                <h3 className="text-lg font-medium">Result Image</h3>
+                <div className="relative w-full h-40 overflow-hidden rounded-lg">
+                  <img
+                    src={resultImage}
+                    alt="Processed Image"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
+                <Button
+                  onClick={handleDownload}
+                  className="w-full text-sm"
+                >
+                  <Download className="mr-2 h-4 w-4" /> Download Image
+                </Button>
+              </div>
             )}
           </div>
+        </div>
 
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="diamond_size" className="flex justify-between text-lg mb-2">
+        <div className="space-y-6 mb-10">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="diamond_size" className="text-sm font-medium">
                 Diamond Size
-                <span className="text-sm text-muted-foreground">{diamondSize.toFixed(1)}</span>
               </Label>
-              <Slider
-                  id="diamond_size"
-                  min={0.1}
-                  max={1}
-                  step={0.1}
-                  value={[diamondSize]}
-                  onValueChange={handleDiamondSizeChange}
-                  className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Control the size of the diamond shapes applied to your image. Range: 0.1 (small) to 1.0 (large).
-              </p>
+              <span className="text-sm font-medium bg-secondary text-secondary-foreground px-3 py-1 rounded-full">
+                {diamondSize.toFixed(1)}
+              </span>
             </div>
-
-            <div>
-              <Label htmlFor="edge_softness" className="flex justify-between text-lg mb-2">
-                Edge Softness
-                <span className="text-sm text-muted-foreground">{edgeSoftness}</span>
-              </Label>
-              <Slider
-                  id="edge_softness"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={[edgeSoftness]}
-                  onValueChange={handleEdgeSoftnessChange}
-                  className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Control the transition between the refracted and non-refracted areas of the image. Range: 0 (sharp
-                edges) to 100 (soft edges).
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="rotation" className="flex justify-between text-lg mb-2">
-                Rotation (degrees)
-                <span className="text-sm text-muted-foreground">{rotation}°</span>
-              </Label>
-              <Slider
-                  id="rotation"
-                  min={0}
-                  max={360}
-                  step={15}
-                  value={[rotation]}
-                  onValueChange={handleRotationChange}
-                  className="[&>span:first-child]:h-2 [&>span:first-child]:bg-primary [&_[role=slider]]:bg-primary [&_[role=slider]]:w-4 [&_[role=slider]]:h-4 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-primary [&_[role=slider]:focus-visible]:ring-0 [&_[role=slider]:focus-visible]:ring-offset-0 [&_[role=slider]:focus-visible]:scale-105 [&_[role=slider]:focus-visible]:transition-transform"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Rotate the refracted pattern to suit your artistic vision. Range: 0° to 360°.
-              </p>
-            </div>
+            <Slider
+              id="diamond_size"
+              min={0.1}
+              max={1}
+              step={0.1}
+              value={[diamondSize]}
+              onValueChange={handleDiamondSizeChange}
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Control the size of the diamond shapes applied to your image. Range: 0.1 (small) to 1.0 (large).
+            </p>
           </div>
 
-          {selectedFile && (
-              <div className="flex justify-center">
-                <button
-                    type="submit"
-                    className="px-8 py-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-lg font-semibold"
-                    disabled={loading}
-                >
-                  {loading ? "Processing..." : "Apply Refraction Effect"}
-                </button>
-              </div>
-          )}
-        </form>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="edge_softness" className="text-sm font-medium">
+                Edge Softness
+              </Label>
+              <span className="text-sm font-medium bg-secondary text-secondary-foreground px-3 py-1 rounded-full">
+                {edgeSoftness}
+              </span>
+            </div>
+            <Slider
+              id="edge_softness"
+              min={0}
+              max={100}
+              step={5}
+              value={[edgeSoftness]}
+              onValueChange={handleEdgeSoftnessChange}
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Control the transition between the refracted and non-refracted areas of the image. Range: 0 (sharp edges) to 100 (soft edges).
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="rotation" className="text-sm font-medium">
+                Rotation (degrees)
+              </Label>
+              <span className="text-sm font-medium bg-secondary text-secondary-foreground px-3 py-1 rounded-full">
+                {rotation}°
+              </span>
+            </div>
+            <Slider
+              id="rotation"
+              min={0}
+              max={360}
+              step={15}
+              value={[rotation]}
+              onValueChange={handleRotationChange}
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Rotate the refracted pattern to suit your artistic vision. Range: 0° to 360°.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                className="px-8 py-4 text-lg font-semibold"
+                disabled={!selectedFile || loading}
+              >
+                {loading ? "Processing..." : "Apply Refraction Effect"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Apply Refraction Effect</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to apply the refraction effect with the current settings?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction onClick={handleSubmit}>Apply</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
 
         {error && (
-            <div className="mt-6 text-red-500">
-              <p>{error}</p>
-            </div>
+          <div className="mt-6 text-red-500">
+            <p>{error}</p>
+          </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export default Home;
+export default RefractorTool;
