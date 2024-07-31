@@ -5,7 +5,6 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Camera, Download, Upload, X } from "lucide-react";
 import imageCompression from 'browser-image-compression';
 
@@ -121,6 +120,7 @@ const RefractorTool: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-10">
+        {/* File upload section */}
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
           <div className="flex flex-col md:flex-row gap-8">
@@ -187,6 +187,7 @@ const RefractorTool: React.FC = () => {
           </div>
         </div>
 
+        {/* Sliders section */}
         <div className="space-y-6 mb-10">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -258,28 +259,15 @@ const RefractorTool: React.FC = () => {
           </div>
         </div>
 
+        {/* Apply effect button */}
         <div className="flex justify-center">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                className="px-8 py-4 text-lg font-semibold"
-                disabled={!selectedFile || loading}
-              >
-                {loading ? "Processing..." : "Apply Refraction Effect"}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Apply Refraction Effect</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to apply the refraction effect with the current settings?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogAction onClick={handleSubmit}>Apply</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            className="px-8 py-4 text-lg font-semibold"
+            disabled={!selectedFile || loading}
+            onClick={handleSubmit}
+          >
+            {loading ? "Processing..." : "Apply Refraction Effect"}
+          </Button>
         </div>
 
         {error && (
