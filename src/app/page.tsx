@@ -100,6 +100,7 @@ const RefractorTool: React.FC = () => {
   const removeImage = (): void => {
     setPreviewImage(null);
     setSelectedFile(null);
+    setResultImage(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -124,11 +125,11 @@ const RefractorTool: React.FC = () => {
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1 space-y-4 max-w-md">
+            <div className="flex-1 flex flex-col gap-4 max-w-md">
               <p className="text-sm">
                 Upload an image to apply the refraction effect.
               </p>
-              <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="w-full h-40 bg-gray-100 rounded-lg flex-1 flex items-center justify-center min-h-40">
                 {previewImage ? (
                   <div className="relative w-full h-full">
                     <img
@@ -167,9 +168,9 @@ const RefractorTool: React.FC = () => {
               />
             </div>
             {resultImage && (
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 flex flex-col gap-4">
                 <h3 className="text-lg font-medium">Result Image</h3>
-                <div className="relative w-full h-40 overflow-hidden rounded-lg">
+                <div className="relative w-full h-40 flex-1 overflow-hidden rounded-lg">
                   <img
                     src={resultImage}
                     alt="Processed Image"
