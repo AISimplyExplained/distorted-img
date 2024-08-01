@@ -126,7 +126,7 @@ const RefractorTool: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1 space-y-4 max-w-md">
               <p className="text-sm">
-                Drag and drop or click to upload an image to apply the refraction effect.
+                Upload an image to apply the refraction effect.
               </p>
               <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center">
                 {previewImage ? (
