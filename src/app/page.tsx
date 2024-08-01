@@ -124,7 +124,7 @@ const RefractorTool: React.FC = () => {
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Upload an Image</h2>
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-4 max-w-md">
               <p className="text-sm">
                 Drag and drop or click to upload an image to apply the refraction effect.
               </p>
